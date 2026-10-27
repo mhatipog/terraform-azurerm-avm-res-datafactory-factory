@@ -29,6 +29,10 @@ variables {
 
 run "single_default_keeps_legacy_name" {
   command = apply
+  providers = {
+    azapi   = azapi
+    azurerm = azurerm
+  }
   variables {
     private_endpoints = {
       factory = { subnet_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/test/subnets/test" }
@@ -42,6 +46,10 @@ run "single_default_keeps_legacy_name" {
 
 run "two_managed_endpoints_get_distinct_names" {
   command = apply
+  providers = {
+    azapi   = azapi
+    azurerm = azurerm
+  }
   variables {
     private_endpoints = {
       factory = { subnet_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/test/subnets/test" }
@@ -60,6 +68,10 @@ run "two_managed_endpoints_get_distinct_names" {
 
 run "two_unmanaged_endpoints_get_distinct_names" {
   command = apply
+  providers = {
+    azapi   = azapi
+    azurerm = azurerm
+  }
   variables {
     private_endpoints_manage_dns_zone_group = false
     private_endpoints = {
@@ -79,6 +91,10 @@ run "two_unmanaged_endpoints_get_distinct_names" {
 
 run "explicit_name_preserves_existing_unnamed_endpoint" {
   command = apply
+  providers = {
+    azapi   = azapi
+    azurerm = azurerm
+  }
   variables {
     private_endpoints = {
       factory = { subnet_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/test/subnets/test" }
@@ -99,6 +115,10 @@ run "explicit_name_preserves_existing_unnamed_endpoint" {
 
 run "truncated_and_sanitized_keys_remain_distinct" {
   command = apply
+  providers = {
+    azapi   = azapi
+    azurerm = azurerm
+  }
   variables {
     name = "factory-abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz"
     private_endpoints = {
