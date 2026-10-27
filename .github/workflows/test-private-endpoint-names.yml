@@ -1,0 +1,48 @@
+name: Test private endpoint naming
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch or commit to test"
+        required: true
+        type: string
+        default: "fix/private-endpoint-default-names"
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-unit:
+    name: Terraform mock-provider regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "0"
+    steps:
+      - name: Checkout selected code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
+          persist-credentials: false
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+
+      - name: Check formatting of changed Terraform files
+        run: terraform fmt -check -diff locals.privateendpoint-names.tf main.privateendpoint.tf tests/unit/private_endpoint_names.tftest.hcl
+
+      - name: Initialize providers without remote backend
+        run: terraform init -backend=false -input=false -no-color
+
+      - name: Validate module
+        run: terraform validate -no-color
+
+      - name: Run isolated mock-provider tests (no Azure credentials)
+        run: terraform test -no-color -test-directory=tests/unit -filter=tests/unit/private_endpoint_names.tftest.hcl
