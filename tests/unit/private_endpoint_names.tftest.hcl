@@ -136,3 +136,30 @@ run "truncated_and_sanitized_keys_remain_distinct" {
     error_message = "Long or punctuation-heavy map keys must generate distinct, valid Azure endpoint names."
   }
 }
+
+run "different_resource_groups_keep_legacy_names" {
+  command = apply
+  providers = {
+    azapi   = azapi
+    azurerm = azurerm
+  }
+  variables {
+    private_endpoints = {
+      factory = {
+        subnet_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/test/subnets/test"
+        resource_group_name = "network-a"
+      }
+      portal = {
+        subnet_resource_id  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test/providers/Microsoft.Network/virtualNetworks/test/subnets/test"
+        resource_group_name = "network-b"
+      }
+    }
+  }
+  assert {
+    condition = (
+      azurerm_private_endpoint.this_managed_dns_zone_groups["factory"].name == "pe-test-factory" &&
+      azurerm_private_endpoint.this_managed_dns_zone_groups["portal"].name == "pe-test-factory"
+    )
+    error_message = "Endpoints in different resource groups may share the legacy name without replacement."
+  }
+}
